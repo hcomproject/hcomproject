@@ -131,7 +131,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
                 <TextView
-                    android:id="@+id/data780TextView"
+                    android:id="@+id/dataHbRTextView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:textColor="@android:color/holo_red_dark"
@@ -143,7 +143,19 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/data780mTextView"
+                    android:id="@+id/dataHbO2TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:text="[m780]"/>
+            </ScrollView>
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/inputDataTextView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:textColor="@android:color/holo_red_dark"

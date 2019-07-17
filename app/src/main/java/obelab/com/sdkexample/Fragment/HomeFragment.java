@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -42,13 +43,19 @@ public class HomeFragment extends Fragment {
     final int port = 50007;
     final int TIME_OUT = 3000;
 
-    double [] splittedHbO2 = new double[16];
-    double [] splittedHbR = new double[16];
-
-    TextView data780TextView;
-    TextView data850TextView;
+    TextView dataHbO2TextView;
+    TextView dataHbRTextView;
+    TextView inputDataTextView;
 
     NirsitProvider nirsitProvider;
+
+    double[] splittedHbO2 = new double[16];
+    double[] splittedHbR = new double[16];
+
+    ArrayList<double[]> inputData = new ArrayList();
+
+    //timer
+    long outTime;
 
     public HomeFragment() {
     }
@@ -56,8 +63,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -67,21 +72,32 @@ public class HomeFragment extends Fragment {
         final Button btnStart = (Button) view.findViewById(R.id.btn_start);
         txtTime = (TextView) view.findViewById(R.id.txt_time);
         vp = (ViewPager) view.findViewById(R.id.vp_main_product);
-        data780TextView = (TextView) view.findViewById(R.id.data780TextView);
-        data850TextView = (TextView) view.findViewById(R.id.data780mTextView);
+        dataHbRTextView = (TextView) view.findViewById(R.id.dataHbRTextView);
+        dataHbO2TextView = (TextView) view.findViewById(R.id.dataHbO2TextView);
+        inputDataTextView = (TextView) view.findViewById(R.id.inputDataTextView);
 
         nirsitProvider = new NirsitProvider(getActivity(), ip);
+        nirsitProvider.setMbll(true);
+        nirsitProvider.setLpf(true);
+        nirsitProvider.setHeartbeat(true);
         nirsitProvider.setDataListener(new NirsitProvider.NirsitDataListener() {
-
             @Override
             public void onReceiveData(NirsitData data) {
-                for (int i=16; i<32; i++) {
+                double[] splittedHbO2HbR = new double[33];
+                String resultTime = String.format("%02d.%02d", (outTime / 1000), (outTime % 1000));
+                for (int i = 16; i < 32; i++) {
                     splittedHbO2[i - 16] = data.getHbO2()[i];
                     splittedHbR[i - 16] = data.getHbR()[i];
+                    splittedHbO2HbR[0] = Double.parseDouble(resultTime);     //timestamp
+                    splittedHbO2HbR[2 * i - 31] = data.getHbO2()[i];    //2k+1
+                    splittedHbO2HbR[2 * i - 30] = data.getHbR()[i];     //2(k+1)
                 }
-                data780TextView.setText("[d780]\n" + Arrays.toString(splittedHbO2));
-                data850TextView.setText("[d850]\n" + Arrays.toString(splittedHbR));
-                Log.d("Time", data.getTimestamp());
+                Log.d("현주", data.getTimestamp());
+
+
+                inputData.add(splittedHbO2HbR);
+                dataHbO2TextView.setText("[d780]\n" + Arrays.toString(splittedHbO2));
+                dataHbRTextView.setText("[d850]\n" + Arrays.toString(splittedHbR));
                 Log.d(TAG, "raw:" + data.getRaw());
             }
 
@@ -106,12 +122,14 @@ public class HomeFragment extends Fragment {
                 switch (cur_Status) {
                     case Init:
                         myBaseTime = SystemClock.elapsedRealtime();
-                        System.out.println(myBaseTime);
+                        //System.out.println(myBaseTime);
                         //myTimer이라는 핸들러를 빈 메시지를 보내서 호출
                         myTimer.sendEmptyMessage(0);
                         btnStart.setText("Stop");
                         cur_Status = Run;
                         nirsitProvider.startMonitoring();
+                        inputDataTextView.setText("[InputData]\n");
+                        inputData.clear();
                         break;
 
                     case Run:
@@ -120,9 +138,17 @@ public class HomeFragment extends Fragment {
                         myPauseTime = SystemClock.elapsedRealtime();
                         btnStart.setText("Start!");
                         cur_Status = Init;
-                        if(nirsitProvider == null) { return; }
+                        if (nirsitProvider == null) {
+                            return;
+                        }
                         nirsitProvider.stopMonitoring();
                         txtTime.setText("00:00:00");
+
+                        String input = "";
+                        for (int i = 0; i < inputData.size(); i++) {
+                            input = input.concat(Arrays.toString(inputData.get(i))).concat(("\n"));
+                        }
+                        inputDataTextView.setText("[InputData]\n" + input);
                 }
             }
         });
@@ -138,7 +164,7 @@ public class HomeFragment extends Fragment {
 
     String getTimeOut() {
         long now = SystemClock.elapsedRealtime(); //애플리케이션이 실행되고 나서 실제로 경과된 시간
-        long outTime = now - myBaseTime;
+        outTime = now - myBaseTime;
         String resultTime = String.format("%02d:%02d:%02d", (outTime / 1000) / 60, (outTime / 1000) % 60, (outTime % 1000) / 10);
         return resultTime;
     }
