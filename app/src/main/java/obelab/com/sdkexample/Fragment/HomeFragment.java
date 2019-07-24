@@ -1,27 +1,38 @@
 package obelab.com.sdkexample.Fragment;
 
-import android.content.DialogInterface;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
+import java.util.Date;
+import java.util.List;
 
-import obelab.com.sdkexample.Activity.MainActivity;
 import obelab.com.sdkexample.R;
 import obelab.com.nirsitsdk.NirsitData;
 import obelab.com.nirsitsdk.NirsitProvider;
@@ -92,7 +103,7 @@ public class HomeFragment extends Fragment {
                     splittedHbO2HbR[2 * i - 31] = data.getHbO2()[i];    //2k+1
                     splittedHbO2HbR[2 * i - 30] = data.getHbR()[i];     //2(k+1)
                 }
-                Log.d("현주", data.getTimestamp());
+                Log.d("time", data.getTimestamp());
 
 
                 inputData.add(splittedHbO2HbR);
@@ -116,7 +127,6 @@ public class HomeFragment extends Fragment {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*      https://rjswn0315.tistory.com/23        */
                 Log.i("STATE", "Button Pressed");
 
                 switch (cur_Status) {
@@ -149,6 +159,9 @@ public class HomeFragment extends Fragment {
                             input = input.concat(Arrays.toString(inputData.get(i))).concat(("\n"));
                         }
                         inputDataTextView.setText("[InputData]\n" + input);
+                        //Log.d("result", "data:" + input);
+
+                        saveData(input);
                 }
             }
         });
@@ -168,4 +181,20 @@ public class HomeFragment extends Fragment {
         String resultTime = String.format("%02d:%02d:%02d", (outTime / 1000) / 60, (outTime / 1000) % 60, (outTime % 1000) / 10);
         return resultTime;
     }
+
+    public void saveData(String data){
+        String inputData = data;
+        FileOutputStream fos = null;
+        try {
+            fos = getContext().openFileOutput("mblldata.txt", Context.MODE_PRIVATE);
+            fos.write(inputData.getBytes());
+            fos.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
