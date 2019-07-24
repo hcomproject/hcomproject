@@ -1,6 +1,8 @@
 package obelab.com.sdkexample.Fragment;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -21,12 +23,26 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
+import obelab.com.sdkexample.R;
 import obelab.com.nirsitsdk.NirsitData;
 import obelab.com.nirsitsdk.NirsitProvider;
-import obelab.com.sdkexample.R;
 
 public class HomeFragment extends Fragment {
     private final String TAG = "[OpenFragment]";
@@ -94,7 +110,7 @@ public class HomeFragment extends Fragment {
                     splittedHbO2HbR[2 * i - 31] = data.getHbO2()[i];    //2k+1
                     splittedHbO2HbR[2 * i - 30] = data.getHbR()[i];     //2(k+1)
                 }
-                Log.d("현주", data.getTimestamp());
+                Log.d("time", data.getTimestamp());
 
 
                 inputData.add(splittedHbO2HbR);
@@ -151,9 +167,9 @@ public class HomeFragment extends Fragment {
                             input = input.concat(Arrays.toString(inputData.get(i))).concat(("\n"));
                         }
                         inputDataTextView.setText("[InputData]\n" + input);
-                        //Log.v("현주", input);
-                        System.out.println(input);
-                        //writeCSV(inputData);
+                        //Log.d("result", "data:" + input);
+
+                        saveData(input);
                 }
             }
         });
@@ -174,46 +190,19 @@ public class HomeFragment extends Fragment {
         return resultTime;
     }
 
-//    public void writeCSV(ArrayList<double[]> input) {
-//        //현재 인코딩 확인
-//        String enc = new java.io.OutputStreamWriter(System.out).getEncoding();
-//        System.out.println("현재 인코딩 : " + enc);
-//
-//        try {
-//            //csv 파일을 생성한다.
-////            String csvFilePath = "C:\\Users\\a0104\\Desktop\\testFile.csv";
-////
-////
-////            BufferedWriter writer = new BufferedWriter(
-////                    new OutputStreamWriter(new FileOutputStream(csvFilePath), "MS949")
-////            );
-////            FileOutputStream fileOutputStream = new FileOutputStream(csvFilePath);
-////            OutputStreamWriter OutputStreamWriter = new OutputStreamWriter(fileOutputStream, "MS949"); // csv파일은 MS949로 인코딩.
-////            BufferedWriter writer = new BufferedWriter(OutputStreamWriter);
-//
-////            BufferedWriter writer = new BufferedWriter(new FileWriter(csvFilePath, true));
-//            String csvFilePath = getContext().getFilesDir().getPath().toString() + "/testAndroid.csv";
-//            Log.v("엑셀 경로", getContext().getFilesDir().getPath());
-//
-//
-//            BufferedWriter writer = new BufferedWriter(
-//                    new OutputStreamWriter(new FileOutputStream(csvFilePath), "MS949")
-//            );
-//
-//            Log.v("엑셀", "성공");
-//
-//            for (int i = 0; i< input.size(); i++){
-//                double[] splittedHbO2HbR = input.get(i);
-//                writer.write(splittedHbO2HbR.toString());
-//            }
-//            writer.flush();
-//            writer.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//            Log.v("엑셀", "또 그 문제");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            Log.v("엑셀", "실패");
-//        }
-//    }
+    public void saveData(String data){
+        String inputData = data;
+        FileOutputStream fos = null;
+        try {
+            fos = getContext().openFileOutput("mblldata.txt", Context.MODE_PRIVATE);
+            fos.write(inputData.getBytes());
+            fos.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
