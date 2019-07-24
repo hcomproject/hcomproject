@@ -1,30 +1,32 @@
 package obelab.com.sdkexample.Fragment;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
-import obelab.com.sdkexample.Activity.MainActivity;
-import obelab.com.sdkexample.R;
 import obelab.com.nirsitsdk.NirsitData;
 import obelab.com.nirsitsdk.NirsitProvider;
+import obelab.com.sdkexample.R;
 
 public class HomeFragment extends Fragment {
     private final String TAG = "[OpenFragment]";
@@ -149,6 +151,9 @@ public class HomeFragment extends Fragment {
                             input = input.concat(Arrays.toString(inputData.get(i))).concat(("\n"));
                         }
                         inputDataTextView.setText("[InputData]\n" + input);
+                        //Log.v("현주", input);
+                        System.out.println(input);
+                        //writeCSV(inputData);
                 }
             }
         });
@@ -168,4 +173,47 @@ public class HomeFragment extends Fragment {
         String resultTime = String.format("%02d:%02d:%02d", (outTime / 1000) / 60, (outTime / 1000) % 60, (outTime % 1000) / 10);
         return resultTime;
     }
+
+//    public void writeCSV(ArrayList<double[]> input) {
+//        //현재 인코딩 확인
+//        String enc = new java.io.OutputStreamWriter(System.out).getEncoding();
+//        System.out.println("현재 인코딩 : " + enc);
+//
+//        try {
+//            //csv 파일을 생성한다.
+////            String csvFilePath = "C:\\Users\\a0104\\Desktop\\testFile.csv";
+////
+////
+////            BufferedWriter writer = new BufferedWriter(
+////                    new OutputStreamWriter(new FileOutputStream(csvFilePath), "MS949")
+////            );
+////            FileOutputStream fileOutputStream = new FileOutputStream(csvFilePath);
+////            OutputStreamWriter OutputStreamWriter = new OutputStreamWriter(fileOutputStream, "MS949"); // csv파일은 MS949로 인코딩.
+////            BufferedWriter writer = new BufferedWriter(OutputStreamWriter);
+//
+////            BufferedWriter writer = new BufferedWriter(new FileWriter(csvFilePath, true));
+//            String csvFilePath = getContext().getFilesDir().getPath().toString() + "/testAndroid.csv";
+//            Log.v("엑셀 경로", getContext().getFilesDir().getPath());
+//
+//
+//            BufferedWriter writer = new BufferedWriter(
+//                    new OutputStreamWriter(new FileOutputStream(csvFilePath), "MS949")
+//            );
+//
+//            Log.v("엑셀", "성공");
+//
+//            for (int i = 0; i< input.size(); i++){
+//                double[] splittedHbO2HbR = input.get(i);
+//                writer.write(splittedHbO2HbR.toString());
+//            }
+//            writer.flush();
+//            writer.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            Log.v("엑셀", "또 그 문제");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            Log.v("엑셀", "실패");
+//        }
+//    }
 }
